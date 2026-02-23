@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container">
+<h2>Panel Supervisor</h2>
+
+<table>
+<tr>
+<th>ID</th>
+<th>Trabajador</th>
+<th>Tipo</th>
+<th>Fecha</th>
+<th>Acciones</th>
+</tr>
+
+{% for r in registros %}
+<tr>
+<td>{{ r[0] }}</td>
+<td>{{ r[1] }}</td>
+<td>{{ r[2] }}</td>
+<td>{{ r[3] }}</td>
+<td>
+<a href="/editar/{{ r[0] }}">Editar</a> |
+<a href="/eliminar/{{ r[0] }}">Eliminar</a>
+</td>
+</tr>
+{% endfor %}
+
+</table>
+</div>
+{% endblock %}

@@ -1,0 +1,9 @@
+@app.route("/eliminar/<int:id>")
+def eliminar(id):
+    if "id" not in session or session["rol"] != "supervisor":
+        return redirect("/")
+
+    with conectar() as conn:
+        conn.execute("DELETE FROM registros WHERE id=?", (id,))
+
+    return redirect("/dashboard")

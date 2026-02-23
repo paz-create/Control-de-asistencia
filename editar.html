@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container">
+<h2>Editar Registro</h2>
+
+<form method="POST">
+<select name="tipo">
+<option value="Entrada">Entrada</option>
+<option value="Salida">Salida</option>
+</select>
+
+<input type="text" name="fecha" value="{{ registro[2] }}">
+
+<button>Guardar Cambios</button>
+</form>
+
+</div>
+{% endblock %}

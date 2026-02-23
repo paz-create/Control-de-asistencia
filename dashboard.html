@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+
+    <h2>Bienvenido {{ session["nombre"] }} ({{ session["rol"] }})</h2>
+
+    <!-- BOTONES SOLO PARA TRABAJADOR -->
+    {% if session["rol"] == "trabajador" %}
+    <div style="margin:20px 0;">
+        <a href="/marcar/Entrada">
+            <button>Marcar Entrada</button>
+        </a>
+
+        <a href="/marcar/Salida">
+            <button>Marcar Salida</button>
+        </a>
+    </div>
+    {% endif %}
+
+    <a href="/logout">
+        <button style="background:red; color:white;">Cerrar Sesión</button>
+    </a>
+
+    <h3 style="margin-top:20px;">Registros</h3>
+
+    <table border="1" cellpadding="8" style="margin-top:10px; border-collapse: collapse;">
+
+        {% if session["rol"] == "supervisor" %}
+        <tr>
+            <th>Trabajador</th>
+            <th>Fecha</th>
+            <th>Entrada</th>
+            <th>Salida</th>
+            <th>Horas</th>
+            <th>Acciones</th>
+        </tr>
+
+        {% for r in registros %}
+        <tr>
+            <td>{{ r[1] }}</td>
+            <td>{{ r[2] }}</td>
+            <td>{{ r[3] if r[3] else "-" }}</td>
+            <td>{{ r[4] if r[4] else "-" }}</td>
+            <td>{{ r[5] if r[5] else "-" }} hrs</td>
+            <td>
+                <a href="/editar/{{ r[0] }}">Editar</a> |
+                <a href="/eliminar/{{ r[0] }}">Eliminar</a>
+            </td>
+        </tr>
+        {% endfor %}
+
+        {% else %}
+        <tr>
+            <th>Fecha</th>
+            <th>Entrada</th>
+            <th>Salida</th>
+            <th>Horas</th>
+        </tr>
+
+        {% for r in registros %}
+        <tr>
+            <td>{{ r[1] }}</td>
+            <td>{{ r[2] if r[2] else "-" }}</td>
+            <td>{{ r[3] if r[3] else "-" }}</td>
+            <td>{{ r[4] if r[4] else "-" }} hrs</td>
+        </tr>
+        {% endfor %}
+        {% endif %}
+
+    </table>
+
+</div>
+{% endblock %}
