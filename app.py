@@ -1,15 +1,20 @@
 from flask import Flask, render_template, request, redirect, session
 import sqlite3
 from datetime import datetime
+import os
 
 app = Flask(__name__)
 app.secret_key = "secreto"
+
+# Evita problemas de sesión en Render
+app.config["SESSION_COOKIE_SECURE"] = False
 
 # -------------------------
 # CONEXIÓN A BASE DE DATOS
 # -------------------------
 def conectar():
-    return sqlite3.connect("database.db")
+    ruta = os.path.join(os.getcwd(), "database.db")
+    return sqlite3.connect(ruta)
 
 # -------------------------
 # CREAR TABLAS
@@ -18,7 +23,7 @@ with conectar() as conn:
     conn.execute("""
     CREATE TABLE IF NOT EXISTS usuarios(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        nombre TEXT,
+        nombre TEXT UNIQUE,
         password TEXT,
         rol TEXT
     )
@@ -85,6 +90,7 @@ def register():
         return redirect("/")
 
     return render_template("register.html")
+
 # -------------------------
 # DASHBOARD
 # -------------------------
@@ -133,7 +139,7 @@ def marcar(tipo):
 
         if tipo == "Entrada":
 
-            if registro_hoy and registro_hoy[1] is not None:
+            if registro_hoy:
                 return "Ya marcaste entrada hoy."
 
             conn.execute("""
@@ -160,19 +166,14 @@ def marcar(tipo):
                 UPDATE registros
                 SET salida=?, horas=?
                 WHERE id=?
-            """, (hora_actual, round(diferencia,2), registro_hoy[0]))
+            """, (hora_actual, round(diferencia, 2), registro_hoy[0]))
 
     return redirect("/dashboard")
 
 # -------------------------
-# LOGOUT
+# EDITAR
 # -------------------------
-@app.route("/logout")
-def logout():
-    session.clear()
-    return redirect("/")
-
-@app.route("/editar/<int:id>", methods=["GET","POST"])
+@app.route("/editar/<int:id>", methods=["GET", "POST"])
 def editar(id):
     if "id" not in session or session["rol"] != "supervisor":
         return redirect("/")
@@ -206,7 +207,7 @@ def editar(id):
                 UPDATE registros
                 SET entrada=?, salida=?, horas=?
                 WHERE id=?
-            """, (entrada, salida, round(horas,2), id))
+            """, (entrada, salida, round(horas, 2), id))
 
             return redirect("/dashboard")
 
@@ -217,6 +218,9 @@ def editar(id):
 
     return render_template("editar.html", registro=registro, id=id)
 
+# -------------------------
+# ELIMINAR
+# -------------------------
 @app.route("/eliminar/<int:id>")
 def eliminar(id):
     if "id" not in session or session["rol"] != "supervisor":
@@ -227,7 +231,13 @@ def eliminar(id):
 
     return redirect("/dashboard")
 
-
+# -------------------------
+# LOGOUT
+# -------------------------
+@app.route("/logout")
+def logout():
+    session.clear()
+    return redirect("/")
 
 if __name__ == "__main__":
     app.run(debug=True)
